@@ -7,13 +7,13 @@ export function generateWorld(difficultyPreset, seed, width, height) {
   const noise = createNoise2D(seed)
   const margin = 30
 
-  const { noiseScale, noiseThreshold, dotCount, minDotDist } = difficultyPreset
+  const { noiseScale, gapExponent, dotCount, minDotDist } = difficultyPreset
   const minDistSq = minDotDist * minDotDist
 
   // generate states via rejection sampling + min distance filtering
   const states = []
   let attempts = 0
-  const maxAttempts = dotCount * 30
+  const maxAttempts = dotCount * 40
 
   while (states.length < dotCount && attempts < maxAttempts) {
     attempts++
@@ -21,11 +21,10 @@ export function generateWorld(difficultyPreset, seed, width, height) {
     const y = margin + rng() * (height - margin * 2)
     const n = noise(x * noiseScale, y * noiseScale)
 
-    // soft rejection: probability ramps from ~0.01 in deep gaps to 1.0 above threshold
-    const prob = n >= noiseThreshold
-      ? 1.0
-      : 0.01 + 0.99 * Math.max(0, (n + 1) / (noiseThreshold + 1))
-    if (rng() > prob) continue
+    // map noise [-1,1] to [0,1], then raise to exponent
+    // low exponent = uniform, high exponent = only noise peaks get dots
+    const density = Math.pow((n + 1) / 2, gapExponent)
+    if (rng() > density) continue
 
     let tooClose = false
     for (let i = states.length - 1; i >= Math.max(0, states.length - 80); i--) {

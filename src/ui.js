@@ -45,6 +45,10 @@ export function createUI(callbacks) {
     badge.className = "agent-badge"
     badge.style.borderColor = AGENT_COLORS[i]
 
+    // --- top half: title + description ---
+    const top = document.createElement("div")
+    top.className = "badge-top"
+
     const header = document.createElement("div")
     header.className = "badge-header"
 
@@ -58,12 +62,18 @@ export function createUI(callbacks) {
 
     header.appendChild(dot)
     header.appendChild(name)
-    badge.appendChild(header)
+    top.appendChild(header)
 
     const desc = document.createElement("p")
     desc.className = "agent-desc"
     desc.textContent = AGENT_DESCRIPTIONS[i]
-    badge.appendChild(desc)
+    top.appendChild(desc)
+
+    badge.appendChild(top)
+
+    // --- bottom half: token bar, stats + toggle ---
+    const bottom = document.createElement("div")
+    bottom.className = "badge-bottom"
 
     const tokenBar = document.createElement("div")
     tokenBar.className = "token-bar"
@@ -72,7 +82,10 @@ export function createUI(callbacks) {
     tokenFill.style.background = AGENT_COLORS[i]
     tokenFill.style.width = "0%"
     tokenBar.appendChild(tokenFill)
-    badge.appendChild(tokenBar)
+    bottom.appendChild(tokenBar)
+
+    const bottomRow = document.createElement("div")
+    bottomRow.className = "badge-bottom-row"
 
     const stats = document.createElement("div")
     stats.className = "badge-stats"
@@ -82,7 +95,7 @@ export function createUI(callbacks) {
     statusSpan.textContent = ""
     stats.appendChild(stepsSpan)
     stats.appendChild(statusSpan)
-    badge.appendChild(stats)
+    bottomRow.appendChild(stats)
 
     const toggle = document.createElement("button")
     toggle.className = "toggle-btn on"
@@ -91,7 +104,10 @@ export function createUI(callbacks) {
       const isOn = toggle.classList.toggle("on")
       badge.classList.toggle("disabled", !isOn)
     })
-    badge.appendChild(toggle)
+    bottomRow.appendChild(toggle)
+
+    bottom.appendChild(bottomRow)
+    badge.appendChild(bottom)
 
     badgesRow.appendChild(badge)
     badges.push({ badge, tokenFill, stepsSpan, statusSpan, toggle })

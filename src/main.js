@@ -23,7 +23,7 @@ import { seededRandom } from "./utils.js"
 // boot styles
 injectStyles()
 
-let currentDifficulty = "normal"
+let currentDifficulty = "easy"
 let seed = Date.now()
 let world, agents, simulation, renderer, tickInterval
 
@@ -35,8 +35,18 @@ const ui = createUI({
     init()
   },
   onToggleAgent(id) {
-    if (agents && agents[id]) {
-      agents[id].enabled = !agents[id].enabled
+    if (!agents || !agents[id]) return
+    const a = agents[id]
+    a.enabled = !a.enabled
+    if (a.enabled) {
+      // reset this agent to starting position
+      a.tokenManager.reset()
+      a.trail = []
+      a.finished = false
+      a.stepsCount = 0
+      a.angle = 0
+      const start = findNearestState(canvas.width / 2, canvas.height / 2, world.states)
+      if (start) { a.x = start.x; a.y = start.y }
     }
   },
   onRestart() {

@@ -19,6 +19,9 @@ export function injectStyles() {
       display: flex;
       gap: 8px;
     }
+    .difficulty-bar .restart-btn {
+      margin-left: 16px;
+    }
 
     .diff-btn {
       padding: 7px 22px;
@@ -64,9 +67,28 @@ export function injectStyles() {
       transition: opacity 0.3s;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      justify-content: space-between;
+      gap: 16px;
     }
     .agent-badge.disabled { opacity: 0.35; }
+
+    .badge-top {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .badge-bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .badge-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
     .badge-header {
       display: flex;
@@ -107,7 +129,7 @@ export function injectStyles() {
 
     .badge-stats {
       display: flex;
-      justify-content: space-between;
+      gap: 12px;
       font-size: 0.72rem;
       color: #666;
     }
@@ -120,7 +142,7 @@ export function injectStyles() {
       background: #222;
       cursor: pointer;
       position: relative;
-      align-self: flex-end;
+      flex-shrink: 0;
       transition: background 0.2s;
       padding: 0;
     }
