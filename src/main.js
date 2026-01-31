@@ -1,4 +1,4 @@
-const style = document.createElement("style");
+const style = document.createElement("style")
 style.textContent = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -15,9 +15,9 @@ style.textContent = `
     font-weight: 300;
     letter-spacing: 0.05em;
   }
-`;
-document.head.appendChild(style);
+`
+document.head.appendChild(style)
 
-const h1 = document.createElement("h1");
-h1.textContent = "temporal locality visualisation";
-document.body.appendChild(h1);
+const h1 = document.createElement("h1")
+h1.textContent = "temporal locality visualisation"
+document.body.appendChild(h1)
