@@ -1,5 +1,7 @@
 # temporal locality visualisation
 
+[temporal-locality-visualization.vercel.app](https://temporal-locality-visualization.vercel.app/)
+
 Minimal static site with esbuild pipeline, deployed to Vercel.
 
 ## Local
