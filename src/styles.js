@@ -114,14 +114,32 @@ export function injectStyles() {
       line-height: 1.4;
     }
 
-    .token-bar {
+    .bar-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .bar-label {
+      font-size: 0.65rem;
+      color: #555;
+      width: 52px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+    .bar-track {
       height: 5px;
       background: #222;
       border-radius: 3px;
       overflow: hidden;
       position: relative;
+      flex: 1;
     }
-    .token-bar-fill {
+    .bar-fill {
       height: 100%;
       border-radius: 3px;
       transition: width 0.2s;

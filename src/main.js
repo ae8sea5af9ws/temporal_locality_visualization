@@ -8,6 +8,7 @@ import {
   AGENT_NAMES,
 } from "./config.js"
 import { generateWorld, findNearestState } from "./world.js"
+import { distance } from "./utils.js"
 import { createAgent } from "./agent.js"
 import {
   SimplyRemovedManager,
@@ -25,7 +26,7 @@ injectStyles()
 
 let currentDifficulty = "easy"
 let seed = Date.now()
-let world, agents, simulation, renderer, tickInterval
+let world, agents, simulation, renderer, tickInterval, startDistance
 
 // create UI first (it creates the canvas element)
 const ui = createUI({
@@ -112,6 +113,7 @@ function init() {
       a.x = start.x
       a.y = start.y
     }
+    startDistance = world.objective ? distance(start, world.objective) : 1
   }
 
   simulation = createSimulation(world, agents, seed)
@@ -127,10 +129,18 @@ function init() {
 function updateUI() {
   if (!agents || !world) return
   for (const a of agents) {
+    let progress = 0
+    if (a.finished) {
+      progress = 1
+    } else if (world.objective && startDistance > 0) {
+      const curr = distance(a, world.objective)
+      progress = Math.max(0, 1 - curr / startDistance)
+    }
     ui.updateBadge(a.id, {
       usedTokens: a.tokenManager.usedTokens,
       steps: a.stepsCount,
       finished: a.finished,
+      progress,
     })
   }
 }

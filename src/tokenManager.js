@@ -82,11 +82,13 @@ export class CompressedOnceManager {
 }
 
 // --- 3. RAG-based ---
+const RAG_CONTEXT_HALF = Math.floor(CONTEXT_WINDOW / 2) // 5 dense steps
+
 export class RAGBasedManager {
   constructor(rng) {
-    this.context = [] // active context steps (like method 1)
+    this.context = [] // active context steps — capped at half window
     this.vectorDB = [] // all stateIds ever visited
-    this.ragEntries = [] // currently active RAG retrievals
+    this.ragEntries = [] // currently active RAG retrievals (1 token each)
     this.budget = TOKEN_BUDGET
     this.rng = rng
   }
@@ -98,7 +100,7 @@ export class RAGBasedManager {
   get usedTokens() {
     let t = 0
     for (const s of this.context) t += s.tokens
-    t += this.ragEntries.length // 1 token each
+    t += this.ragEntries.length
     return t
   }
 
@@ -119,19 +121,21 @@ export class RAGBasedManager {
     // add to active context
     this.context.push({ stateId, tokens: MAX_TOKENS_PER_STEP })
 
-    // evict oldest from context when full
-    while (this.context.length > CONTEXT_WINDOW) {
+    // evict oldest — keep only half the window for dense context
+    while (this.context.length > RAG_CONTEXT_HALF) {
       const evicted = this.context.shift()
       evicted.tokens = 0
     }
 
-    // trigger RAG retrieval when approaching budget
-    const contextTokens = this.context.reduce((a, s) => a + s.tokens, 0)
-    if (contextTokens >= RAG_CONTEXT_THRESHOLD && this.vectorDB.length > CONTEXT_WINDOW) {
+    // refresh RAG retrieval each step (random sample from full history)
+    if (this.vectorDB.length > RAG_CONTEXT_HALF) {
       this.ragEntries = []
-      const pool = [...new Set(this.vectorDB)] // unique stateIds
-      const count = Math.min(RAG_RETRIEVAL_COUNT, pool.length)
-      const shuffled = pool.slice()
+      const pool = [...new Set(this.vectorDB)]
+      // exclude states already in dense context
+      const contextIds = new Set(this.context.map((s) => s.stateId))
+      const available = pool.filter((id) => !contextIds.has(id))
+      const count = Math.min(RAG_RETRIEVAL_COUNT, available.length)
+      const shuffled = available.slice()
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(this.rng() * (i + 1))
         ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
@@ -170,13 +174,11 @@ export class RecursivelyCompressedManager {
   }
 
   addStep(stateId) {
-    // take 1 token from each existing step
-    if (this.steps.length >= CONTEXT_WINDOW) {
-      for (const s of this.steps) {
-        s.tokens = Math.max(0, s.tokens - 1)
-      }
-      this.steps = this.steps.filter((s) => s.tokens > 0)
+    // take 1 token from each existing step — always compress
+    for (const s of this.steps) {
+      s.tokens = Math.max(0, s.tokens - 1)
     }
+    this.steps = this.steps.filter((s) => s.tokens > 0)
 
     this.steps.push({ stateId, tokens: MAX_TOKENS_PER_STEP })
   }

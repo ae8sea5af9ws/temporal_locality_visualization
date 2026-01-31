@@ -75,14 +75,44 @@ export function createUI(callbacks) {
     const bottom = document.createElement("div")
     bottom.className = "badge-bottom"
 
-    const tokenBar = document.createElement("div")
-    tokenBar.className = "token-bar"
+    const barGroup = document.createElement("div")
+    barGroup.className = "bar-group"
+
+    // context bar (grey)
+    const contextRow = document.createElement("div")
+    contextRow.className = "bar-row"
+    const contextLabel = document.createElement("span")
+    contextLabel.className = "bar-label"
+    contextLabel.textContent = "Context"
+    const contextTrack = document.createElement("div")
+    contextTrack.className = "bar-track"
     const tokenFill = document.createElement("div")
-    tokenFill.className = "token-bar-fill"
-    tokenFill.style.background = AGENT_COLORS[i]
+    tokenFill.className = "bar-fill"
+    tokenFill.style.background = "#666"
     tokenFill.style.width = "0%"
-    tokenBar.appendChild(tokenFill)
-    bottom.appendChild(tokenBar)
+    contextTrack.appendChild(tokenFill)
+    contextRow.appendChild(contextLabel)
+    contextRow.appendChild(contextTrack)
+    barGroup.appendChild(contextRow)
+
+    // progress bar (colored)
+    const progressRow = document.createElement("div")
+    progressRow.className = "bar-row"
+    const progressLabel = document.createElement("span")
+    progressLabel.className = "bar-label"
+    progressLabel.textContent = "Progress"
+    const progressTrack = document.createElement("div")
+    progressTrack.className = "bar-track"
+    const progressFill = document.createElement("div")
+    progressFill.className = "bar-fill"
+    progressFill.style.background = AGENT_COLORS[i]
+    progressFill.style.width = "0%"
+    progressTrack.appendChild(progressFill)
+    progressRow.appendChild(progressLabel)
+    progressRow.appendChild(progressTrack)
+    barGroup.appendChild(progressRow)
+
+    bottom.appendChild(barGroup)
 
     const bottomRow = document.createElement("div")
     bottomRow.className = "badge-bottom-row"
@@ -110,7 +140,7 @@ export function createUI(callbacks) {
     badge.appendChild(bottom)
 
     badgesRow.appendChild(badge)
-    badges.push({ badge, tokenFill, stepsSpan, statusSpan, toggle })
+    badges.push({ badge, tokenFill, progressFill, stepsSpan, statusSpan, toggle })
   }
   container.appendChild(badgesRow)
 
@@ -125,6 +155,9 @@ export function createUI(callbacks) {
     const b = badges[agentId]
     if (!b) return
     b.tokenFill.style.width = ((data.usedTokens / TOKEN_BUDGET) * 100) + "%"
+    if (data.progress != null) {
+      b.progressFill.style.width = (data.progress * 100) + "%"
+    }
     b.stepsSpan.textContent = "Steps: " + data.steps
     b.statusSpan.textContent = data.finished ? "Reached" : ""
   }
